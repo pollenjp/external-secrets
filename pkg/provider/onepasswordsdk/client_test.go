@@ -592,6 +592,31 @@ func TestDeleteItemField(t *testing.T) {
 	}
 }
 
+func TestGetVault(t *testing.T) {
+	fc := &fakeClient{
+		listAllResult: []onepassword.VaultOverview{
+			{
+				ID:    "vault-id",
+				Title: "vault-title",
+			},
+		},
+	}
+
+	p := &Provider{
+		client: &onepassword.Client{
+			VaultsAPI: fc,
+		},
+	}
+
+	titleOrUuids := []string{"vault-title", "vault-id"}
+
+	for _, titleOrUuid := range titleOrUuids {
+		vaultID, err := p.GetVault(context.Background(), titleOrUuid)
+		require.NoError(t, err)
+		require.Equal(t, fc.listAllResult[0].ID, vaultID)
+	}
+}
+
 type fakeLister struct {
 	listAllResult []onepassword.ItemOverview
 	createCalled  bool
